@@ -1,35 +1,36 @@
-// 1. Capturamos el contenedor del HTML
+// 1. Capturamos los elementos del HTML
 const pantalla = document.getElementById("pantalla");
+const boton = document.getElementById("botonGenerar"); // Capturamos el botón
 
-// 2. Creamos una función asíncrona de flecha
-const obtenerPersonaje = async () => {
-    // Mostramos un mensaje temporal mientras esperamos a internet
-    pantalla.innerHTML = `<p id="cargando">Viajando por el multiverso (cargando datos)...</p>`;
+// 2. Creamos la función asíncrona que trae el personaje
+const obtenerPersonajeAleatorio = async () => {
+    pantalla.innerHTML = `<p id="cargando">Abriendo portal... 🌀</p>`;
 
     try {
-        // Hacemos la petición a la API con fetch y esperamos (await)
-        // El número '1' al final de la URL es el ID del personaje
-        const respuesta = await fetch("https://rickandmortyapi.com/api/character/1");
+        // Generamos un número entero al azar entre 1 y 826
+        const idAleatorio = Math.floor(Math.random() * 826) + 1;
         
-        // Convertimos esa respuesta de texto plano a un objeto JavaScript (JSON)
+        // Usamos comillas invertidas (backticks) para meter la variable en la URL
+        const url = `https://rickandmortyapi.com/api/character/${idAleatorio}`;
+        const respuesta = await fetch(url);
         const datos = await respuesta.json();
 
-        // Aplicamos Desestructuración: Extraemos solo lo que nos importa del objeto
-        const { name, species, image, status } = datos;
+        // Desestructuramos los datos
+        const { name, species, image, status, origin } = datos;
 
-        // Inyectamos el resultado en la pantalla, usando literales de plantilla (Template literals)
+        // Inyectamos el HTML (agregué el origen del personaje para dar más detalles)
         pantalla.innerHTML = `
-            <h3 style="margin-top: 0;">Personaje Encontrado:</h3>
-            <img src="${image}" alt="${name}" style="border-radius: 50%; width: 150px; border: 3px solid #000;">
-            <p><b>Nombre:</b> ${name}</p>
+            <h3 style="margin-top: 0;">${name}</h3>
+            <img src="${image}" alt="${name}" style="border-radius: 10px; width: 100%; border: 3px solid #333;">
             <p><b>Especie:</b> ${species}</p>
-            <p><b>Estado:</b> ${status}</p>
+            <p><b>Estado:</b> ${status === 'Alive' ? 'Vivo 🟢' : status === 'Dead' ? 'Muerto 🔴' : 'Desconocido ⚪'}</p>
+            <p><b>Origen:</b> ${origin.name}</p>
         `;
     } catch (error) {
-        // Si no hay internet o la URL está mal, atrapamos el error aquí
-        pantalla.innerHTML = `<p style="color: red;">¡Ups! Hubo un problema de conexión: ${error.message}</p>`;
+        pantalla.innerHTML = `<p style="color: red;">El portal falló: ${error.message}</p>`;
     }
 };
 
-// 3. Ejecutamos nuestra función
-obtenerPersonaje();
+// 3. Escuchamos el evento de "clic" en el botón
+// Cuando el usuario haga clic, se ejecutará la función 'obtenerPersonajeAleatorio'
+boton.addEventListener("click", obtenerPersonajeAleatorio);
