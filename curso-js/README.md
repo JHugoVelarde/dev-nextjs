@@ -424,3 +424,102 @@ Guarda ambos archivos (`Ctrl + S`). Si miras tu navegador ahora, deberías ver u
 
 > **Reto rápido:** Si cambias el número `1` al final de la URL en la línea `fetch(...)` por un `2` o un `3`, y guardas el archivo, ¡verás que tu código trae a otros personajes automáticamente!
 
+---
+
+## 🖲 Interactividad con la página web
+
+Hacer que la página responda a las acciones del usuario es lo que convierte a una web estática en una aplicación interactiva y divertida. ¡Manos a la obra!
+
+Para lograr esto, vamos a introducir un concepto clave en JavaScript: los **Eventos** (Events). Un evento es cualquier cosa que sucede en la página, como hacer clic, pasar el ratón, o presionar una tecla. Nosotros usaremos un "escuchador de eventos" (`addEventListener`) para estar atentos a cuando presiones el botón.
+
+---
+
+## Resumen de la solución
+
+1.  **En el HTML:** Agregaremos un elemento `<button>` con un `id` para poder identificarlo.
+2.  **En el JavaScript:** * Capturaremos ese botón.
+    * Modificaremos nuestra función para que genere un número al azar (entre el 1 y el 826, que son los personajes disponibles en esta API).
+    * Usaremos las comillas invertidas (Template literals `` ` ``) para inyectar ese número al azar directamente en la URL de la API.
+    * Le diremos al botón que ejecute la función cada vez que hagamos clic en él.
+
+---
+
+## Instrucciones paso a paso
+
+### 1. Actualizar el archivo HTML
+Abre tu `index.html` y agrega el botón justo debajo del título y arriba del contenedor. Reemplaza tu código con este:
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscador de Personajes Aleatorios</title>
+    <link rel="shortcut icon" href="#">
+</head>
+<body>
+    <h1>Generador del Multiverso</h1>
+    
+    <button id="botonGenerar" style="margin-bottom: 15px; padding: 10px; cursor: pointer; font-weight: bold;">
+        ¡Traer un personaje al azar!
+    </button>
+    
+    <div id="pantalla" style="background-color: #e0f7fa; padding: 20px; border-radius: 10px; max-width: 300px;">
+        <p>Haz clic en el botón para empezar.</p>
+    </div>
+    
+    <script src="app.js"></script> 
+</body>
+</html>
+```
+
+### 2. Actualizar el archivo JavaScript
+Abre tu `app.js`, borra lo anterior y pega este nuevo código. He añadido comentarios explicando la nueva lógica de números aleatorios y el evento del clic.
+
+```javascript
+// 1. Capturamos los elementos del HTML
+const pantalla = document.getElementById("pantalla");
+const boton = document.getElementById("botonGenerar"); // Capturamos el botón
+
+// 2. Creamos la función asíncrona que trae el personaje
+const obtenerPersonajeAleatorio = async () => {
+    pantalla.innerHTML = `<p id="cargando">Abriendo portal... 🌀</p>`;
+
+    try {
+        // Generamos un número entero al azar entre 1 y 826
+        const idAleatorio = Math.floor(Math.random() * 826) + 1;
+        
+        // Usamos comillas invertidas (backticks) para meter la variable en la URL
+        const url = `https://rickandmortyapi.com/api/character/${idAleatorio}`;
+        const respuesta = await fetch(url);
+        const datos = await respuesta.json();
+
+        // Desestructuramos los datos
+        const { name, species, image, status, origin } = datos;
+
+        // Inyectamos el HTML (agregué el origen del personaje para dar más detalles)
+        pantalla.innerHTML = `
+            <h3 style="margin-top: 0;">${name}</h3>
+            <img src="${image}" alt="${name}" style="border-radius: 10px; width: 100%; border: 3px solid #333;">
+            <p><b>Especie:</b> ${species}</p>
+            <p><b>Estado:</b> ${status === 'Alive' ? 'Vivo 🟢' : status === 'Dead' ? 'Muerto 🔴' : 'Desconocido ⚪'}</p>
+            <p><b>Origen:</b> ${origin.name}</p>
+        `;
+    } catch (error) {
+        pantalla.innerHTML = `<p style="color: red;">El portal falló: ${error.message}</p>`;
+    }
+};
+
+// 3. Escuchamos el evento de "clic" en el botón
+// Cuando el usuario haga clic, se ejecutará la función 'obtenerPersonajeAleatorio'
+boton.addEventListener("click", obtenerPersonajeAleatorio);
+```
+
+### 3. ¡Pruébalo en el navegador!
+Guarda tus dos archivos (`Ctrl + S`). Ve a tu navegador y ahora verás un botón. ¡Haz clic en él todas las veces que quieras! Cada clic generará un nuevo número, hará una petición a la API y actualizará la tarjeta al instante con un personaje distinto.
+
+> **Dato curioso sobre el código:** En la línea del estado (`status`), usamos algo llamado **Operador Ternario** (`condicion ? siVerdadero : siFalso`). Es una forma moderna y corta de escribir un `if/else` en una sola línea para poner un emoji verde si está vivo o rojo si está muerto.
+
+---
+
+¡Acabas de crear una aplicación web funcional, interactiva y conectada a internet usando las mejores prácticas de JavaScript Moderno! 
